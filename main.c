@@ -6,4 +6,5 @@ int main(void)
     rl = readline("Prompt > ");
     printf("%s\n", rl);
     return (0);
+    /*ok*/
 }
