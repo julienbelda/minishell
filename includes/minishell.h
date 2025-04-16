@@ -19,4 +19,16 @@
 # include <sys/wait.h>
 # include <sys/param.h>
 
+typedef	struct s_command
+{
+
+}	t_command;
+
+typedef struct s_env
+{
+
+}	t_env;
+
+
+
 #endif
