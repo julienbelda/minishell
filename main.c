@@ -7,3 +7,5 @@ int main(void)
     printf("%s\n", rl);
     return (0);
 }
+
+/* commentaire */
