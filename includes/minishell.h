@@ -49,8 +49,8 @@ typedef struct s_command
 
 typedef struct s_env
 {
-	char			*key;
-	char			*value;
+	char			*key; //Ce qui y'a avant "="
+	char			*value; //Valeur de la variable apres "="
 	bool			is_exported; //1 visible dans l'env
 	struct s_env	*next;
 	struct s_env	*prev;
