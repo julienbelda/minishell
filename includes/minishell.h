@@ -74,7 +74,7 @@ typedef struct s_dynbuf // Structure utilisé que dans lexer pour construire pas
 	char	*data; // Zone malloc-ée
 	size_t	len;	// Nb de caractère utilisé
 	size_t	capacity; // capacité allouée
-}	t_dynbuf
+}	t_dynbuf;
 
 extern volatile sig_atomic_t	g_signal;
 

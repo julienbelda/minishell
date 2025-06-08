@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jubelda <jubelda@student.42.fr>            +#+  +:+       +#+         #
+#    By: charliesarfati <charliesarfati@student.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/14 12:09:05 by jubelda           #+#    #+#              #
-#    Updated: 2025/03/14 12:23:02 by jubelda          ###   ########.fr        #
+#    Updated: 2025/06/08 23:35:28 by charliesarf      ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,7 +31,7 @@ INCLUDES_FILES := $(wildcard $(HEADER_DIRECTORY)/*.h)
 
 # GLOBAL VARIABLES
 CC := gcc -g3 -fsanitize=address
-CFLAGS :=-Wall -Wextra -Werror -O3 -g -I$(HEADER_DIRECTORY)
+CFLAGS :=-Wall -Wextra -Werror -O3 -g -I$(HEADER_DIRECTORY) -I$(LIBFT_FOLDER)
 # LIB READLINE AT 42 SCHOOL
 LDFLAGS := -L $(HOME)/.brew/Cellar/readline/8.2.10/lib -I $(HOME)/.brew/Cellar/readline/8.2.10/include
 
