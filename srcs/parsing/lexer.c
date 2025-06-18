@@ -1,61 +1,98 @@
 #include "minishell.h"
 
-void	ft_dynbuf_init(t_dynbuf *b)
-{
-	b->data = NULL;
-	b->len = 0;
-	b->capacity = 0;
-}
 
-int	ft_buf_grow(t_dynbuf *b, size_t need)
+int	lex_operator(t_dynbuf *b, t_token **lst,
+			char *l, size_t *i)
 {
-	size_t	new_capacity;
-	char	*new;
-
-	if (b->len + need <= b->capacity)
+	if (!ft_is_operator(l[*i]))
 		return (0);
-	new_capacity = b->capacity;
-	if (new_capacity == 0)
-		new_capacity = 32;
-	while (new_capacity < b->capacity + need)
-		new_capacity *= 2;
-	new = malloc(new_capacity + 1);
-	if (!new)
+	if (ft_flush_word(b, lst) == -1
+		|| !ft_found_operator_token(lst, l, i))
 		return (-1);
-	if (b->data)
-		ft_memcpy(new, b->data, b->len);
-	free(b->data);
-	b->data = new;
-	b->capacity = new_capacity;
+	return (1);
+}
+
+int	lex_quote_toggle(t_lstate *s, char *l, size_t *i)
+{
+	if (*s == NORMAL && (l[*i] == '"' || l[*i] == '\''))
+	{
+		if (l[*i] == '\'')
+			*s = IN_SQUOTE;
+		else
+			*s = IN_DQUOTE;
+		(*i)++;
+		return (1);
+	}
+	if ((*s == IN_SQUOTE && l[*i] == '\'')
+		|| (*s == IN_DQUOTE && l[*i] == '"'))
+	{
+		(*i)++;
+		*s = NORMAL;
+		return (1);
+	}
 	return (0);
 }
 
-int	ft_dynbuf_add_char(t_dynbuf *b, char c)
+int	lex_variable(t_dynbuf *buf, char *line, size_t *i,
+			t_minishell *ms)
 {
-	if (ft_buf_grow(b, 1) == -1)
+	if (line[*i] != '$')
+		return (0);
+	if (ft_expand_variable(buf, line, i, ms) == -1)
 		return (-1);
-	b->data[b->len++] = c;
-	b->data[b->len] = '\0';
-	return (0);
+	return (1);
 }
 
-char	*ft_dynbuf_str(t_dynbuf *b)
+int	lex_space(t_dynbuf *b, t_token **lst,
+			char *l, size_t *i)
 {
-	char	*out;
-
-	if (b->len == 0)
-		return (NULL);
-	out = malloc(b->len + 1);
-	if (!out)
-		return (NULL);
-	ft_memcpy(out, b->data, b->len + 1);
-	return (out);
+	if (!isspace((unsigned char)l[*i]))
+		return (0);
+	if (ft_flush_word(b, lst) == -1)
+		return (-1);
+	(*i)++;
+	return (1);
 }
 
-void ft_dynbuf_free(t_dynbuf *b)
+int  lex_loop(t_lexctx *c, char *line)
 {
-	free(b->data);
-	b->data = NULL;
-	b->len = 0;
-	b->capacity = 0;
+    size_t  i;
+    int     r;
+
+    i = 0;
+    while (line[i])
+    {
+        r = 0;
+        if (c->st == NORMAL)
+            r = lex_operator(&c->buf, &c->lst, line, &i);
+        if (r == 0)
+            r = lex_quote_toggle(&c->st, line, &i);
+        if (r == 0 && c->st != IN_SQUOTE)
+            r = lex_variable(&c->buf, line, &i, c->ms);
+        if (r == 0 && c->st == NORMAL)
+            r = lex_space(&c->buf, &c->lst, line, &i);
+        if (r == -1)
+            return (-1);
+        if (r == 1)
+            continue ;
+        if (ft_dynbuf_add_char(&c->buf, line[i++]) == -1)
+            return (-1);
+    }
+    if (c->st != NORMAL || ft_flush_word(&c->buf, &c->lst) == -1)
+        return (-1);
+    return (0);
+}
+
+t_token *ft_lexer(char *line, t_minishell *ms)
+{
+    t_lexctx    ctx;
+
+    ft_dynbuf_init(&ctx.buf);
+    ctx.lst = NULL;
+    ctx.st = NORMAL;
+    ctx.ms = ms;
+    if (lex_loop(&ctx, line) == -1)
+        return (ft_lex_error(&ctx.buf, &ctx.lst, "lexer error"));
+    ft_dynbuf_free(&ctx.buf);
+    return (ctx.lst);
 }

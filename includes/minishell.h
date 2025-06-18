@@ -2,7 +2,7 @@
 # define MINISHELL_H
 
 # include <stdio.h>
-# include "libft.h"
+# include "../srcs/libft/libft.h"
 # include <readline/readline.h>
 # include <readline/history.h>
 # include <stdlib.h>
@@ -28,6 +28,13 @@ typedef enum e_type
 	REDIR_APPEND,
 	HEREDOC
 }	t_token_type;
+
+typedef enum e_lstate
+{
+    NORMAL,
+    IN_SQUOTE,
+    IN_DQUOTE
+}   t_lstate;
 
 typedef struct s_token
 {
@@ -74,7 +81,15 @@ typedef struct s_dynbuf // Structure utilisé que dans lexer pour construire pas
 	char	*data; // Zone malloc-ée
 	size_t	len;	// Nb de caractère utilisé
 	size_t	capacity; // capacité allouée
-}	t_dynbuf
+}	t_dynbuf;
+
+typedef struct s_lexctx
+{
+    t_dynbuf    buf;
+    t_token     *lst;
+    t_lstate    st;
+    t_minishell *ms;
+}   t_lexctx;
 
 extern volatile sig_atomic_t	g_signal;
 
@@ -97,5 +112,22 @@ int		ft_buf_grow(t_dynbuf *b, size_t need);
 int		ft_dynbuf_add_char(t_dynbuf *b, char c);
 char	*ft_dynbuf_str(t_dynbuf *b);
 void	ft_dynbuf_free(t_dynbuf *b);
+int	ft_expand_variable(t_dynbuf *buf, char *line, size_t *idx, t_minishell *mini);
+char *ft_env_get(t_env *env, char *key, size_t len);
+t_token *ft_lexer(char *line, t_minishell *ms);
+t_token *ft_lex_error(t_dynbuf *b, t_token **lst, const char *msg);
+int  ft_flush_word(t_dynbuf *b, t_token **list);
+int	ft_found_operator_token(t_token **list, char *line, size_t *i);
+bool	ft_is_operator(char c);
+void	ft_token_clear(t_token **lst);
 
+int	lex_operator(t_dynbuf *b, t_token **lst, char *l, size_t *i);
+
+int	lex_operator(t_dynbuf *b, t_token **lst, char *l, size_t *i);
+int	lex_quote_toggle(t_lstate *s, char *l, size_t *i);
+int	lex_variable(t_dynbuf *b, char *l, size_t *i, t_minishell *ms);
+int	lex_space(t_dynbuf *b, t_token **lst, char *l, size_t *i);
+int  lex_loop(t_lexctx *c, char *line);
+t_token *ft_lexer(char *line, t_minishell *ms);
+int	ft_add_token(t_token **list, t_token_type type, char *value);
 #endif

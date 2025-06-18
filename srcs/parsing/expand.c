@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-static char *ft_env_get(t_env *env, char *key, size_t len)
+char *ft_env_get(t_env *env, char *key, size_t len)
 {
 	while (env)
 	{
@@ -11,36 +11,47 @@ static char *ft_env_get(t_env *env, char *key, size_t len)
 	return (NULL);
 }
 
-static int	ft_expand_variable(t_dynbuf *b, char *l, size_t *i, t_minishell *ms)
+/* helper: copie une chaîne entière dans le tampon dynamique */
+/* helper: copie une chaîne entière dans le tampon dynamique */
+static int	append_str_dyn(t_dynbuf *buf, char *src)
 {
-	size_t	s;
-	size_t	j;
-	char	*val;
-	char	*temp;
+	char	*current;
 
-	(*i)++;
-	if (l[*i] == '?')
+	current = src;
+	while (*current)
 	{
-		j = 0;
-		if (!(temp = ft_itoa(ms->last_status)))
+		if (ft_dynbuf_add_char(buf, *current) == -1)
 			return (-1);
-		while (temp[j])
-			if (ft_dynbuf_add_char(b, temp[j++]) == -1)
-				return(free(temp), 1);
-		free(temp);
-		(*i++);
+		current++;
+	}
+	return (0);
+}
+
+
+int	ft_expand_variable(t_dynbuf *buf, char *line, size_t *idx, t_minishell *mini)
+{
+	size_t	start;
+	char	*value;
+	char	*num_str;
+
+	(*idx)++;   /* saute '$' */
+	if (line[*idx] == '?')
+	{
+		num_str = ft_itoa(mini->last_status);
+		if (!num_str || append_str_dyn(buf, num_str) == -1)
+			return (free(num_str), -1);
+		free(num_str);
+		(*idx)++;
 		return (0);
 	}
-	s = *i;
-	while (ft_isalnum(l[*i]) || l[*i] == '_')
-		(*i)++;
-	if (s == *i)
-		return (ft_dynbuf_add_char(b, '$'));
-	val = ft_env_get(ms->env, l + s, *i - s);
-	if (!val)
-		return (0);
-	while(*val)
-		if (ft_dynbuf_add_char(b, *val++) == -1)
-			return (-1);
+	start = *idx;
+	while (line[*idx]
+		&& (ft_isalnum((unsigned char)line[*idx]) || line[*idx] == '_'))
+		(*idx)++;
+	if (start == *idx)  /* '$' isolé -> littéral */
+		return (ft_dynbuf_add_char(buf, '$'));
+	value = ft_env_get(mini->env, line + start, *idx - start);
+	if (value && append_str_dyn(buf, value) == -1)
+		return (-1);
 	return (0);
 }

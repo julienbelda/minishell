@@ -1,63 +1,29 @@
 #include "minishell.h"
 
-static bool	ft_is_operator(char c)
+bool	ft_is_operator(char c)
 {
 	return (c == '|' || c == '<' || c == '>');
 }
 
-static int	ft_add_token(t_token **list, t_token_type type, char *value)
+int	ft_flush_word(t_dynbuf *b, t_token **list)
 {
-	t_token	*new;
-	t_token	*tail;
+	char	*str;
 
-	new = malloc(sizeof(*new));
-	if (!new)
-	{
-		free(value); //Value peut être alloué par ft_dyn_buff_str.
-		return (free(value), false);
-	}
-	new->type = type;
-	new->value = value;
-	new->next = NULL;
-	new->prev = NULL;
-	if (!*list)
-		*list = new;
-	else
-	{
-		tail = *list;
-		while (tail->next)
-			tail = tail->next;
-		tail->next = new;
-		new->prev = tail;
-	}
-	return (true);
+	str = ft_dynbuf_str(b);
+	if (!str)
+		return (0);
+	if (!ft_add_token(list, WORD, str))
+		return (-1);
+	b->len = 0;
+	if (b->data)                    /* ← ajout indispensable */
+		b->data[0] = '\0';          /*   pour la prochaine construction */
+	return (0);
 }
 
-static int	ft_found_operator_token(t_token **list, char *line, size_t *i)
+t_token *ft_lex_error(t_dynbuf *b, t_token **lst, const char *msg)
 {
-	if (line[*i] == '|')
-	{
-		(*i)++;
-		return (ft_add_token(list, PIPE, NULL));
-	}
-	else if (line[*i] == '<')
-	{
-		if (line[*i + 1] == '<')
-		{
-			*i += 2;
-			return (ft_add_token(list, HEREDOC, NULL));
-		}
-		(*i)++;
-		return (ft_add_token(list, REDIR_IN, NULL));
-	}
-	else
-	{
-		if (line[*i + 1] == '>')
-		{
-			*i += 2;
-			return (ft_add_token(list, REDIR_APPEND, NULL));
-		}
-		(*i)++;
-		return (ft_add_token(list, REDIR_OUT, NULL));
-	}
+    ft_dynbuf_free(b);
+    ft_token_clear(lst);          /* ta fonction de free liste */
+    printf("LEXER-ERR: %s\n", msg);
+    return (NULL);
 }
