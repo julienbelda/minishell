@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-void count_args(char **args)
+int count_args(char **args)
 {
 	int	count;
 
@@ -10,7 +10,7 @@ void count_args(char **args)
 	return (count);
 }
 
-void update_oldpwd(t_command *cmds, t_minishell *mini)
+/* void update_oldpwd(t_command *cmds, t_minishell *mini)
 {
 	
-}
+} */
