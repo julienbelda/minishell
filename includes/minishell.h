@@ -19,6 +19,8 @@
 # include <sys/wait.h>
 # include <sys/param.h>
 
+#define ERR_MALLOC "Erreur malloc\n"
+
 typedef enum e_type
 {
 	WORD,
