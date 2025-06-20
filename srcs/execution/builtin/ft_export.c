@@ -93,7 +93,6 @@ int main(void)
 
 	char *cmd3[] = {"export", NULL};
 	ft_export(cmd3, &mini);
-
 	return 0;
 }
 

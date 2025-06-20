@@ -30,7 +30,7 @@ void ft_env_add_back(t_env **env, t_env *new)
 	new->prev = last;
 }
 
-/* static void sort_env_array(t_env **array, int size)
+void sort_env_array(t_env **array, int size)
 {
 	int x = 0;
 	while (x < size - 1)
@@ -48,11 +48,11 @@ void ft_env_add_back(t_env **env, t_env *new)
 		}
 		x++;
 	}
-} */
+}
 
 int print_sorted_env(t_env *env)
 {
-	t_env *tmp;
+	/* t_env *tmp; */
 	t_env *array[1024];
 	int i = 0;
 
@@ -62,6 +62,7 @@ int print_sorted_env(t_env *env)
 			array[i++] = env;
 		env = env->next;
 	}
+	array[i] = NULL;
 	sort_env_array(array, i);
 	i = 0;
 	while (i < 1024 && array[i])
