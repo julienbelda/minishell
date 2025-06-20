@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   libft.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jubelda <jubelda@student.42.fr>            +#+  +:+       +#+        */
+/*   By: charliesarfati <charliesarfati@student.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/15 11:01:09 by julienbelda       #+#    #+#             */
-/*   Updated: 2025/03/12 10:31:20 by jubelda          ###   ########.fr       */
+/*   Updated: 2025/06/20 15:47:55 by charliesarf      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ int		ft_isdigit(int c);
 int		ft_isprint(int c);
 char	*ft_itoa(int nb);
 int		ft_memcmp(const void *s1, const void *s2, size_t n);
+int		ft_strcmp(const char *s1, const char *s2);
 int		ft_strncmp(char *s1, char *s2, size_t n);
 int		ft_tolower(int c);
 int		ft_toupper(int c);

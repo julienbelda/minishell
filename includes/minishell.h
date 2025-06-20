@@ -132,4 +132,12 @@ int	lex_space(t_dynbuf *b, t_token **lst, char *l, size_t *i);
 int  lex_loop(t_lexctx *c, char *line);
 t_token *ft_lexer(char *line, t_minishell *ms);
 int	ft_add_token(t_token **list, t_token_type type, char *value);
+
+
+bool	print_error(char *str);
+int print_sorted_env(t_env *env);
+/* static void sort_env_array(t_env **array, int size); */
+void ft_env_add_back(t_env **env, t_env *new);
+int	ft_strcmp(const char *s1, const char *s2);
+
 #endif

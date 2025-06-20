@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 /* concatène argv[1..] en une seule chaîne, séparée par des espaces */
-static char	*join_args(int ac, char **av)
+/* static char	*join_args(int ac, char **av)
 {
 	int	i;
 	size_t	len;
@@ -41,9 +41,9 @@ static char	*join_args(int ac, char **av)
 	res[pos] = '\0';
 	return (res);
 }
-
+ */
 /* programme de test : affiche la liste des tokens générés par ft_lexer */
-int	main(int ac, char **av)
+/* int	main(int ac, char **av)
 {
 	t_minishell	ms;
 	t_token		*lst;
@@ -75,3 +75,4 @@ int	main(int ac, char **av)
 	free(line);
 	return (0);
 }
+ */

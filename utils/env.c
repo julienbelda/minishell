@@ -30,7 +30,7 @@ void ft_env_add_back(t_env **env, t_env *new)
 	new->prev = last;
 }
 
-static void sort_env_array(t_env **array, int size)
+/* static void sort_env_array(t_env **array, int size)
 {
 	int x = 0;
 	while (x < size - 1)
@@ -48,7 +48,7 @@ static void sort_env_array(t_env **array, int size)
 		}
 		x++;
 	}
-}
+} */
 
 int print_sorted_env(t_env *env)
 {
