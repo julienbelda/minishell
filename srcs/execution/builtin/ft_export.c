@@ -77,7 +77,7 @@ int ft_export(char **args, t_minishell *mini)
 	return status;
 }
 
-int main(void)
+/* int main(void)
 {
 	t_minishell mini;
 	t_env *env = NULL;
@@ -95,5 +95,5 @@ int main(void)
 	ft_export(cmd3, &mini);
 	return 0;
 }
-
+ */
 
