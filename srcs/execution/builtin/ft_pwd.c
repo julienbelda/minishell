@@ -16,7 +16,7 @@ int builtin_pwd(t_minishell *mini)
 	return 1;
 }
 
-int main(int argc, char **argv)
+/* int main(int argc, char **argv)
 {
     if (argc < 2)
         return 0;
@@ -29,4 +29,4 @@ int main(int argc, char **argv)
 		printf("le code de sortie est : %d\n", mini.last_status);
 	}
 	return 0; 
-}
+} */

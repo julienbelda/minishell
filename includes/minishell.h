@@ -140,5 +140,7 @@ void sort_env_array(t_env **array, int size);
 void ft_env_add_back(t_env **env, t_env *new);
 int	ft_strcmp(const char *s1, const char *s2);
 void set_exit_status(t_minishell *mini, int code, const char *msg);
+void free_env(t_env *env);
+void remove_node_target(t_env **head, t_env *target);
 
 #endif
