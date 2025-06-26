@@ -1,5 +1,41 @@
 #include "minishell.h"
 
+char *get_env(t_env *env, const char *key)
+{
+	while(env)
+	{
+		if (ft_strcmp(env->key, key) == 0)
+			return (env->value);
+		env = env->next;
+	}
+	return (NULL);
+}
+
+int set_env(t_env **env, char *key,const char *value)
+{
+	// je peux modifier une variable d'env si elle existe 
+	t_env *tmp;
+	t_env *new_nodes;
+	tmp = *env;
+
+	while (tmp)
+	{
+		if (ft_strcmp(tmp->key, key) == 0)
+		{
+			free(tmp->value);
+			tmp->value = ft_strdup(value);
+			return 0;
+		}
+		tmp = tmp->next;
+	}
+	new_nodes = create_env_with_kv(key, value);
+	if (!new_nodes)
+		return 1;
+	new_nodes->next = *env; // je relie le maillon
+	*env = new_nodes; // comme ca je peux définir la tete de la liste comme le nouveau noeud
+	return 0;
+}
+
 int	ft_strcmp(const char *s1, const char *s2)
 {
 	int	i;
@@ -75,3 +111,9 @@ int print_sorted_env(t_env *env)
 	}
 	return 0;
 }
+
+/* Tu dois avoir une fonction qui peut :
+
+chercher une variable dans t_env *mini->env
+
+renvoyer sa valeur (comme get_env_value(mini->env, "HOME")) */

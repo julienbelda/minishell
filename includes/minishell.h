@@ -142,5 +142,8 @@ int	ft_strcmp(const char *s1, const char *s2);
 void set_exit_status(t_minishell *mini, int code, const char *msg);
 void free_env(t_env *env);
 void remove_node_target(t_env **head, t_env *target);
+char *get_env(t_env *env, const char *key);
+char *create_env_with_kv(const char *key, const char *value);
+int set_env(t_env **env, char *key,const char *value);
 
 #endif
