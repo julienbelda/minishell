@@ -10,9 +10,9 @@ int update_var_oldpwd_pwd(t_env **env)
 	oldpwd = get_env(*env, "PWD");
 	if (!oldpwd)
 		return 1;
-	if (set_env(*env, "OLDPWD", oldpwd) != 0)
+	if (set_env(env, "OLDPWD", oldpwd) != 0)
 		return 1;
-	if (set_env(*env, "PWD", cwd) != 0)
+	if (set_env(env, "PWD", cwd) != 0)
 		return 1;
 	return 0;
 }
@@ -54,7 +54,7 @@ int handle_oldpwd(t_env **env)
 	return (update_var_oldpwd_pwd(env));
 }
 
-void builtin_cd(char **args, t_env **env, t_minishell *mini)
+int builtin_cd(char **args, t_env **env) // + ajouter t_minishell en args pour last status;
 {
 	if (!args[1] || (ft_strcmp(args[1], "~") == 0))
 		return handle_home_cd(env);

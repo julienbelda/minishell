@@ -6,7 +6,7 @@
 #    By: charliesarfati <charliesarfati@student.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/14 12:09:05 by jubelda           #+#    #+#              #
-#    Updated: 2025/06/20 16:02:21 by charliesarf      ###   ########.fr        #
+#    Updated: 2025/06/28 02:08:43 by charliesarf      ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ SRCS_DIRECTORY := ./srcs
 LIBFT_FOLDER := $(SRCS_DIRECTORY)/libft
 
 # ALL FILES.C
-MAIN_FILE := main.c
+MAIN_FILE := $(SRCS_DIRECTORY)/execution/exec/redirection.c #main.c
 
 # MINISHELL_FILES := $(wildcard $(SRCS_DIRECTORY)/minishell/*.c)
 PARSING_FILES := $(wildcard $(SRCS_DIRECTORY)/parsing/*.c)

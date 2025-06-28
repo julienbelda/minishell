@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-char *create_env_with_kv(const char *key, const char *value)
+t_env *create_env_with_kv(const char *key, const char *value)
 {
     t_env *new_nodes;
     new_nodes = malloc(sizeof(t_env));
