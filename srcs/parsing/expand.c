@@ -27,7 +27,6 @@ int	append_str_dyn(t_dynbuf *buf, char *src)
 	return (0);
 }
 
-
 int	ft_expand_variable(t_dynbuf *buf, char *line, size_t *idx, t_minishell *mini)
 {
 	size_t	start;
