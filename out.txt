@@ -1,0 +1,3 @@
+cmd 0 : echo
+  argv[0] = echo
+  argv[1] = a

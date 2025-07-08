@@ -13,7 +13,7 @@ char *ft_env_get(t_env *env, char *key, size_t len)
 
 /* helper: copie une chaîne entière dans le tampon dynamique */
 /* helper: copie une chaîne entière dans le tampon dynamique */
-static int	append_str_dyn(t_dynbuf *buf, char *src)
+int	append_str_dyn(t_dynbuf *buf, char *src)
 {
 	char	*current;
 

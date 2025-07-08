@@ -1,5 +1,3 @@
-#include "minishell.h"
-
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
@@ -7,71 +5,68 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: minishell <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/02 15:20:00 by minishell         #+#    #+#             */
-/*   Updated: 2025/06/02 15:20:00 by minishell        ###   ########.fr       */
+/*   Created: 2025/07/04 17:10:00 by minishell         #+#    #+#             */
+/*   Updated: 2025/07/04 17:10:00 by minishell        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+/* main.c ----------------------------------------------------------------- */
 #include "minishell.h"
 #include <stdio.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
-/* concatène argv[1..] en une seule chaîne, séparée par des espaces */
-static char	*join_args(int ac, char **av)
+static void	process_line(char *line, t_minishell *ms)
 {
-	int	i;
-	size_t	len;
-	char	*res;
-	size_t	pos;
+	t_token		*toks;
+	t_command	*cmds;
+	int			err;
 
-	i = 1;
-	len = 0;
-	while (i < ac)
-		len += ft_strlen(av[i++]) + 1;
-	if (!(res = malloc(len + 1)))
-		return (NULL);
-	i = 1;
-	pos = 0;
-	while (i < ac)
+	if (!*line)                     /* ligne vide */
+		return ;
+	add_history(line);
+
+	toks = ft_lexer(line, ms);
+	if (!toks)
+		return ;
+	cmds = parse_tokens(toks, &err);
+	if (!cmds)
 	{
-		ft_memcpy(res + pos, av[i], ft_strlen(av[i]));
-		pos += ft_strlen(av[i]);
-		if (++i < ac)
-			res[pos++] = ' ';
+		printf("parse error (%d)\n", err);
+		ft_token_clear(&toks);
+		return ;
 	}
-	res[pos] = '\0';
-	return (res);
+	/* --- tant que l’exécuteur n’est pas prêt, on affiche --------------- */
+	for (t_command *c = cmds; c; c = c->next)
+		printf("[cmd] %s\n", c->name);
+	/* free (helper à écrire) */
+	ft_token_clear(&toks);
+	/* free_cmd_list(cmds) … */
 }
 
-/* programme de test : affiche la liste des tokens générés par ft_lexer */
-int	main(int ac, char **av)
+int	main(int ac, char **av, char **envp)
 {
 	t_minishell	ms;
-	t_token		*lst;
-	t_token		*tmp;
 	char		*line;
 
-	ms.env = NULL;
+	(void)ac; (void)av; (void)envp;
+	ms.env = init_env(envp);
+    if (!ms.env)
+        return (perror("env"), 1);
 	ms.last_status = 0;
-	line = (ac > 1) ? join_args(ac, av)
-		: ft_strdup("echo \"hello $USER\" | grep h >>out.txt");
-	if (!line)
-		return (perror("malloc"), 1);
-	lst = ft_lexer(line, &ms);
-	if (!lst)
-		return (free(line), printf("lexer error\n"), 1);
-	tmp = lst;
-	while (tmp)
+
+	ft_setup_prompt_signals();
+	while (1)
 	{
-		printf("%-10s : %s\n",
-			(tmp->type == WORD) ? "WORD"
-			: (tmp->type == PIPE) ? "PIPE"
-			: (tmp->type == REDIR_IN) ? "<"
-			: (tmp->type == REDIR_OUT) ? ">"
-			: (tmp->type == REDIR_APPEND) ? ">>" : "<<",
-			tmp->value ? tmp->value : "(null)");
-		tmp = tmp->next;
+		line = readline("minishell$ ");
+		if (!line)               /* Ctrl-D ou EOF */
+		{
+			printf("exit\n");
+			break ;
+		}
+		process_line(line, &ms);
+		free(line);
 	}
-	ft_token_clear(&lst);
-	free(line);
+	/* free env… */
 	return (0);
 }
