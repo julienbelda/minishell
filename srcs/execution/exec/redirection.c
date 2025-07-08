@@ -42,7 +42,7 @@ void redir_append(const char *file)
 void apply_redir(t_command *cmds)
 {
     t_redirection *redir;
-    redir = cmds->redirection;
+    redir = cmds->redir;
     while (redir)
     {
         if (redir->type == REDIR_IN)

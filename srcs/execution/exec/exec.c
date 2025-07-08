@@ -1,4 +1,4 @@
-#include "minishell.h"
+/* #include "minishell.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -75,7 +75,7 @@ int ft_execute(t_command *cmds, t_minishell *mini)
 	return 0;
 }
 
-/* int main(void)
+int main(void)
 {
 	t_minishell mini;
 	t_command cmd1, cmd2;

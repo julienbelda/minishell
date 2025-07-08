@@ -164,7 +164,6 @@ int			ft_split_key_value(char *src, char **key, char **val);
 t_env		*init_env(char **envp);
 void		ft_free_env_list(t_env *head);
 
-<<<<<<< HEAD
 int	lex_operator(t_dynbuf *b, t_token **lst, char *l, size_t *i);
 int	lex_quote_toggle(t_lstate *s, char *l, size_t *i);
 int	lex_variable(t_dynbuf *b, char *l, size_t *i, t_minishell *ms);
@@ -173,11 +172,10 @@ int  lex_loop(t_lexctx *c, char *line);
 t_token *ft_lexer(char *line, t_minishell *ms);
 int	ft_add_token(t_token **list, t_token_type type, char *value);
 
-
 bool	print_error(char *str);
 int print_sorted_env(t_env *env);
 void sort_env_array(t_env **array, int size);
-void ft_env_add_back(t_env **env, t_env *new);
+void ft_env_add_back2(t_env **env, t_env *new);
 int	ft_strcmp(const char *s1, const char *s2);
 void set_exit_status(t_minishell *mini, int code, const char *msg);
 void free_env(t_env *env);
@@ -186,6 +184,42 @@ char *get_env(t_env *env, const char *key);
 t_env *create_env_with_kv(const char *key, const char *value);
 int set_env(t_env **env, char *key,const char *value);
 
-=======
->>>>>>> julien
+
+/* FT_CD.C */
+
+int update_var_oldpwd_pwd(t_env **env);
+int handle_home_cd(t_env **env);
+int handle_oldpwd(t_env **env);
+int builtin_cd(char **args, t_env **env);
+
+/*FT_ECHO.C */
+
+int parse_option(char *str);
+void builtin_echo(char **argv);
+
+/* FT_ENV.C */
+
+int builtin_env(t_minishell *mini);
+
+/* FT_EXIT.C */
+
+int ft_is_numeric(char *str);
+void builtin_exit(char **args, t_minishell *mini);
+
+/* FT_EXPORT.C */
+
+bool valid_identifier(const char *str);
+t_env *find_env(t_env *env, const char *key);
+int export_assign(t_minishell *mini, char *key, char *value);
+int export_single(t_minishell *mini, const char *arg);
+int ft_export(char **args, t_minishell *mini);
+
+/* FT_PWD.C */
+
+int builtin_pwd(t_minishell *mini);
+
+/* FT_UNSET.C */
+
+int builtin_unset(char **args, t_minishell *mini);
+
 #endif

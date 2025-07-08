@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-static bool valid_identifier(const char *str)
+bool valid_identifier(const char *str)
 {
 	int i = 0;
 	if (!str[0] || (!ft_isalpha(str[0]) && str[0] != '_'))
@@ -14,7 +14,7 @@ static bool valid_identifier(const char *str)
 	return true;
 }
 
-static t_env *find_env(t_env *env, const char *key)
+t_env *find_env(t_env *env, const char *key)
 {
 	while (env)
 	{
@@ -25,7 +25,7 @@ static t_env *find_env(t_env *env, const char *key)
 	return NULL;
 }
 
-static int export_assign(t_minishell *mini, char *key, char *value)
+int export_assign(t_minishell *mini, char *key, char *value)
 {
 	t_env *existing = find_env(mini->env, key);
 	if (existing)
@@ -47,7 +47,7 @@ static int export_assign(t_minishell *mini, char *key, char *value)
 	return 0;
 }
 
-static int export_single(t_minishell *mini, const char *arg)
+int export_single(t_minishell *mini, const char *arg)
 {
 	char *eq = ft_strchr(arg, '=');
 	char *key = NULL, *value = NULL;

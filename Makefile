@@ -6,7 +6,7 @@
 #    By: julienbelda <julienbelda@student.42.fr>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/14 12:09:05 by jubelda           #+#    #+#              #
-#    Updated: 2025/07/08 13:15:34 by julienbelda      ###   ########.fr        #
+#    Updated: 2025/07/08 14:10:47 by julienbelda      ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,11 +21,12 @@ MAIN_FILE        := main.c
 PARSING_FILES    := $(wildcard $(SRCS_DIRECTORY)/parsing/*.c)
 EXECUTING_FILES  := $(wildcard $(SRCS_DIRECTORY)/execution/*.c)
 BUILTIN_FILES    := $(wildcard $(SRCS_DIRECTORY)/execution/builtin/*.c)
-EXECUTE_FILES    := $(wildcard $(SRCS_DIRECTORY)/execution/execute/*.c)
+EXECUTE_FILES    := $(wildcard $(SRCS_DIRECTORY)/execution/exec/*.c)
 LINKED_LIST_FILES:= $(wildcard $(SRCS_DIRECTORY)/linked_list/*.c)
+UTILS_FILES := $(wildcard $(SRCS_DIRECTORY)/utils/*.c)
 
 SRCS := $(MAIN_FILE) $(PARSING_FILES) $(EXECUTING_FILES) \
-        $(BUILTIN_FILES) $(EXECUTE_FILES) $(LINKED_LIST_FILES)
+        $(BUILTIN_FILES) $(EXECUTE_FILES) $(LINKED_LIST_FILES) $(UTILS_FILES)
 OBJS := $(SRCS:.c=.o)
 
 CC       := gcc -g3 -fsanitize=address

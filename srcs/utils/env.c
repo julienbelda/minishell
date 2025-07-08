@@ -51,7 +51,7 @@ int	ft_strcmp(const char *s1, const char *s2)
 }
 
 
-void ft_env_add_back(t_env **env, t_env *new)
+void ft_env_add_back2(t_env **env, t_env *new)
 {
 	t_env *last;
 	if (!*env)

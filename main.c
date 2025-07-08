@@ -16,12 +16,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
-<<<<<<< HEAD
-/* concatène argv[1..] en une seule chaîne, séparée par des espaces */
-/* static char	*join_args(int ac, char **av)
-=======
 static void	process_line(char *line, t_minishell *ms)
->>>>>>> julien
 {
 	t_token		*toks;
 	t_command	*cmds;
@@ -48,14 +43,8 @@ static void	process_line(char *line, t_minishell *ms)
 	ft_token_clear(&toks);
 	/* free_cmd_list(cmds) … */
 }
-<<<<<<< HEAD
- */
-/* programme de test : affiche la liste des tokens générés par ft_lexer */
-/* int	main(int ac, char **av)
-=======
 
 int	main(int ac, char **av, char **envp)
->>>>>>> julien
 {
 	t_minishell	ms;
 	char		*line;
@@ -81,4 +70,3 @@ int	main(int ac, char **av, char **envp)
 	/* free env… */
 	return (0);
 }
- */
