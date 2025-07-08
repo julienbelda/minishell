@@ -55,7 +55,7 @@ void apply_redir(t_command *cmds)
     }
 }
 
-int main(void)
+/* int main(void)
 {
 	t_minishell mini;
 	t_command cmd;
@@ -93,3 +93,4 @@ int main(void)
 
 	return 0;
 }
+ */
