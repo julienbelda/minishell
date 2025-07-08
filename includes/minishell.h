@@ -56,11 +56,12 @@ typedef struct s_redirection
 
 typedef struct s_command
 {
-	char				*name; //Pointe vers argv[0] utiles pour les builtins.
-	char				**args; //Tableau d'args déstiné à exceve.
-	t_redirection		*redirection;
-	struct s_command	*next;
-	struct s_command	*prev;
+	char            *name;
+	char            **argv;
+	size_t          argv_cap;   /* capacité actuelle du tableau */
+	size_t          argc;       /* nb d’arguments remplis       */
+	t_redirection   *redir;
+	struct s_command *next;
 }	t_command;
 
 typedef struct s_env
@@ -93,8 +94,6 @@ typedef struct s_lexctx
     t_minishell *ms;
 }   t_lexctx;
 
-extern volatile sig_atomic_t	g_signal;
-
 t_token		*ft_lexer(char *line, t_minishell *mini);
 t_command	*ft_parser(t_token *tokens);
 int			ft_execute(t_command *commands, t_minishell *mini);
@@ -107,24 +106,65 @@ int			ft_unset(char **args, t_minishell *mini);
 int			ft_env(char **args, t_minishell *mini);
 int			ft_exit(char **args, t_minishell *mini);
 
-/* LEXER */
+/* DYNBUF.C */
 
-void	ft_dynbuf_init(t_dynbuf *b);
-int		ft_buf_grow(t_dynbuf *b, size_t need);
-int		ft_dynbuf_add_char(t_dynbuf *b, char c);
-char	*ft_dynbuf_str(t_dynbuf *b);
-void	ft_dynbuf_free(t_dynbuf *b);
-int	ft_expand_variable(t_dynbuf *buf, char *line, size_t *idx, t_minishell *mini);
-char *ft_env_get(t_env *env, char *key, size_t len);
-t_token *ft_lexer(char *line, t_minishell *ms);
-t_token *ft_lex_error(t_dynbuf *b, t_token **lst, const char *msg);
-int  ft_flush_word(t_dynbuf *b, t_token **list);
-int	ft_found_operator_token(t_token **list, char *line, size_t *i);
-bool	ft_is_operator(char c);
-void	ft_token_clear(t_token **lst);
+void		ft_dynbuf_init(t_dynbuf *b);
+int			ft_buf_grow(t_dynbuf *b, size_t need);
+int			ft_dynbuf_add_char(t_dynbuf *b, char c);
+char		*ft_dynbuf_str(t_dynbuf *b);
+void		ft_dynbuf_free(t_dynbuf *b);
 
-int	lex_operator(t_dynbuf *b, t_token **lst, char *l, size_t *i);
+/* EXPAND.C */
 
+char		*ft_env_get(t_env *env, char *key, size_t len);
+int			append_str_dyn(t_dynbuf *buf, char *src);
+int			ft_expand_variable(t_dynbuf *buf, char *line, size_t *idx, t_minishell *mini);
+
+/* LEXER_HELPER.C */
+
+bool		ft_is_operator(char c);
+int			ft_flush_word(t_dynbuf *b, t_token **list);
+t_token		*ft_lex_error(t_dynbuf *b, t_token **lst, const char *msg);
+
+/* LEXER.C */
+int			ft_lex_operator(t_dynbuf *b, t_token **lst, char *l, size_t *i);
+int			ft_lex_quote_toggle(t_lstate *s, char *l, size_t *i);
+int			ft_lex_variable(t_dynbuf *buf, char *line, size_t *i, t_minishell *ms);
+int			ft_lex_space(t_dynbuf *b, t_token **lst, char *l, size_t *i);
+int 		ft_lex_loop(t_lexctx *c, char *line);
+t_token		*ft_lexer(char *line, t_minishell *ms);
+
+/* PARSER.C */
+
+t_command	*ft_init_cmd(void);
+int			ft_argv_push(t_command *cmd, char *word);
+int			parse_word(t_command *cmd, t_token *tok);
+int			parse_pipe(t_command **cur, int *err);
+int			parse_redir(t_command *cmd, t_token **tok, int *err);
+t_command	*parse_tokens(t_token *tok, int *err);
+int			redir_push(t_command *cmd, t_token_type type, char *file);
+
+/* TOKEN.C */
+
+int			ft_add_token(t_token **list, t_token_type type, char *value);
+int			ft_found_operator_token(t_token **list, char *line, size_t *i);
+void		ft_token_clear(t_token **lst);
+
+/* SIGNAL.C */
+
+void		ft_sigint_prompt(int sig);
+void		ft_setup_prompt_signals(void);
+void		ft_setup_child_signals(void);
+
+/* ENV.C */
+
+t_env		*ft_env_new(char *key, char *val);
+int			ft_env_add_back(t_env **head, t_env *new);
+int			ft_split_key_value(char *src, char **key, char **val);
+t_env		*init_env(char **envp);
+void		ft_free_env_list(t_env *head);
+
+<<<<<<< HEAD
 int	lex_operator(t_dynbuf *b, t_token **lst, char *l, size_t *i);
 int	lex_quote_toggle(t_lstate *s, char *l, size_t *i);
 int	lex_variable(t_dynbuf *b, char *l, size_t *i, t_minishell *ms);
@@ -146,4 +186,6 @@ char *get_env(t_env *env, const char *key);
 t_env *create_env_with_kv(const char *key, const char *value);
 int set_env(t_env **env, char *key,const char *value);
 
+=======
+>>>>>>> julien
 #endif
