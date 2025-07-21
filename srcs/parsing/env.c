@@ -30,8 +30,55 @@ int	ft_env_add_back(t_env **head, t_env *new)
 		while (cur->next)
 			cur = cur->next;
 		cur->next = new;
+		new->prev = cur;
 	}
 	return (0);
+}
+
+char **env_to_array(t_env *env)
+{
+    int   count = 0;
+    t_env *cur  = env;
+
+    /* 1) compte */
+    while (cur)
+    {
+        if (cur->is_exported && cur->value)
+            count++;
+        cur = cur->next;
+    }
+    char **arr = malloc(sizeof(char *) * (count + 1));
+    if (!arr)
+        return NULL;
+
+    /* 2) copie "key=value" */
+    cur   = env;
+    count = 0;
+    while (cur)
+    {
+        if (cur->is_exported && cur->value)
+        {
+            char *kv = ft_strjoin(cur->key, "=");
+            if (!kv)
+                return arr[count] = NULL, arr; /* laisse execve gérer */
+            arr[count] = ft_strjoin_free(kv, cur->value); /* helper qui free kv */
+            if (!arr[count])
+                return arr[count] = NULL, arr;
+            count++;
+        }
+        cur = cur->next;
+    }
+    arr[count] = NULL;
+    return arr;
+}
+
+void free_env_array(char **arr)
+{
+    if (!arr)
+        return;
+    for (int i = 0; arr[i]; i++)
+        free(arr[i]);
+    free(arr);
 }
 
 /* ---------- sépare "KEY=VAL" --------------------------------------------- */

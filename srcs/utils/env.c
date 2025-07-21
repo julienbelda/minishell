@@ -11,7 +11,7 @@ char *get_env(t_env *env, const char *key)
 	return (NULL);
 }
 
-int set_env(t_env **env, char *key,const char *value)
+int set_env(t_env **env, char *key, const char *value)
 {
 	// je peux modifier une variable d'env si elle existe 
 	t_env *tmp;
@@ -31,8 +31,11 @@ int set_env(t_env **env, char *key,const char *value)
 	new_nodes = create_env_with_kv(key, value);
 	if (!new_nodes)
 		return 1;
-	new_nodes->next = *env; // je relie le maillon
-	*env = new_nodes; // comme ca je peux définir la tete de la liste comme le nouveau noeud
+	new_nodes->next = *env;
+	if (*env)
+    	(*env)->prev = new_nodes;   /* ← AJOUT   */
+	new_nodes->prev = NULL;         /* tête */
+	*env = new_nodes;
 	return 0;
 }
 

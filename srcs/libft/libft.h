@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   libft.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: charliesarfati <charliesarfati@student.    +#+  +:+       +#+        */
+/*   By: julienbelda <julienbelda@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/15 11:01:09 by julienbelda       #+#    #+#             */
-/*   Updated: 2025/06/20 15:47:55 by charliesarf      ###   ########.fr       */
+/*   Updated: 2025/07/21 13:38:33 by julienbelda      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,5 +62,5 @@ size_t	ft_strlen(const char *str);
 
 char	*get_next_line(int fd);
 char	*ft_strjoin_gnl(char const *s1, char const *s2);
-
+char    *ft_strjoin_free(char *s1, const char *s2);
 #endif
