@@ -1,58 +1,63 @@
 #include "minishell.h"
 
-void redir_in(const char *file)
+int redir_in(const char *file)
 {
-    int fd;
-    fd = open(file, O_RDONLY);
+    int fd = open(file, O_RDONLY);
     if (fd < 0)
-    {
-        perror(file);
-        exit(1);
-    }
-    dup2(fd, STDIN_FILENO);
+        return (perror(file), -1);
+    if (dup2(fd, STDIN_FILENO) == -1)
+        return (perror("dup2"), close(fd), -1);
     close(fd);
+    return 0;
 }
 
-void redir_out(const char *file)
+int redir_out(const char *file)
 {
-    int fd;
-    fd = open(file, O_WRONLY | O_TRUNC | O_CREAT , 0644);
+    int fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (fd < 0)
-    {
-        perror(file);
-        exit(1);
-    }
-    dup2(fd, STDOUT_FILENO);
+        return (perror(file), -1);
+    if (dup2(fd, STDOUT_FILENO) == -1)
+        return (perror("dup2"), close(fd), -1);
     close(fd);
+    return 0;
 }
 
-void redir_append(const char *file)
+int redir_append(const char *file)
 {
-    int fd;
-    fd = open(file, O_WRONLY | O_CREAT | O_APPEND, 0644);
+    int fd = open(file, O_WRONLY | O_CREAT | O_APPEND, 0644);
     if (fd < 0)
-    {
-        perror(file);
-        exit(1);
-    }
-    dup2(fd, STDOUT_FILENO);
+        return (perror(file), -1);
+    if (dup2(fd, STDOUT_FILENO) == -1)
+        return (perror("dup2"), close(fd), -1);
     close(fd);
+    return 0;
 }
 
-void apply_redir(t_command *cmds)
+/* TODO: heredoc -> créer fichier tmp + expansion selon quotes */
+int redir_heredoc(t_redirection *r)
 {
-    t_redirection *redir;
-    redir = cmds->redir;
+    (void)r;
+    return 0;
+}
+
+int apply_redirections(t_redirection *redir)
+{
     while (redir)
     {
+        int ret = 0;
         if (redir->type == REDIR_IN)
-            redir_in(redir->file);
-        else if(redir->type == REDIR_OUT)
-            redir_out(redir->file);
+            ret = redir_in(redir->file);
+        else if (redir->type == REDIR_OUT)
+            ret = redir_out(redir->file);
         else if (redir->type == REDIR_APPEND)
-            redir_append(redir->file);
+            ret = redir_append(redir->file);
+        else if (redir->type == HEREDOC)
+            ret = redir_heredoc(redir);
+        if (ret < 0)
+            return -1;
         redir = redir->next;
     }
+    return 0;
 }
 
 /* int main(void)
