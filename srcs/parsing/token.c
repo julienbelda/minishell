@@ -11,7 +11,7 @@ int	ft_add_token(t_token **list, t_token_type type, char *value)
 	new = malloc(sizeof(*new));
 	if (!new)
 	{
-		free(value); //Value peut être alloué par ft_dyn_buff_str.
+		free(value);
 		return (free(value), false);
 	}
 	new->type = type;

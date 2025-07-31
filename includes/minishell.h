@@ -54,6 +54,7 @@ typedef struct s_redirection
 {
 	t_token_type			type; //REDIR_IN, REDIR_OUT, REDIR_APPEND, HEREDOC..
 	char					*file; //File ou délim si heredoc
+	int						fd;
 	struct s_redirection	*next;
 }	t_redirection;
 
@@ -261,6 +262,9 @@ int handle_assignments(t_command *cmd, t_minishell *ms);
 
 int process_heredocs(t_command *cmds, t_minishell *ms);
 char    *ft_expand_line(char *raw, t_minishell *ms);
+int ft_exec_heredoc(char *eof, int *fdread, t_minishell *ms, bool expand);
+char	*ft_expand_line(char *raw, t_minishell *ms);
 
-
+void	ft_restore_prompt_signals(void);
+void ft_setup_heredoc_signals();
 #endif

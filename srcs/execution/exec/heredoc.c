@@ -1,59 +1,91 @@
 /* ************************************************************************** */
 /*                                heredoc.c                                   */
 /* ************************************************************************** */
+
 #include "minishell.h"
 #define HD_PROMPT  "> "
+extern volatile sig_atomic_t g_signal;
 
-/* -------- helpers : nom de fichier tmp ----------------------------------- */
-static char *hd_tmpname(void)
+/* Compare la ligne courante au mot-clé EOF */
+static int is_eof(char *line, char *eof)
 {
-    char    *name;
-    int     fd;
-    int     i;
-
-    i = 0;
-    while (1)
-    {
-        name = ft_strjoin("/tmp/minishell_hd_", ft_itoa(i));
-        if (!name)
-            return (NULL);
-        fd = open(name, O_CREAT | O_EXCL | O_RDWR, 0600);
-        if (fd >= 0)
-            return (close(fd), name);
-        free(name);
-        ++i;
-    }
+    if (!line || !eof)
+        return (0);
+    return (ft_strcmp(line, eof) == 0);
 }
 
-/* -------- écrit le contenu et renvoie chemin ----------------------------- */
-static char *hd_fill_file(const char *delim, bool expand, t_minishell *ms)
+/* Lit le heredoc, renvoie 0 si OK, -1 si Ctrl-C */
+int ft_exec_heredoc(char *eof, int *fdread, t_minishell *ms, bool expand)
 {
-    char    *tmp = hd_tmpname();
-    int     fd;
     char    *line;
+    int     hd;
 
-    if (!tmp)
-        return (NULL);
-    fd = open(tmp, O_WRONLY | O_TRUNC, 0600);
-    if (fd == -1)
-        return (free(tmp), NULL);
-    while (1)
+    g_signal = 0;
+    hd = open(".heredoc.txt", O_CREAT | O_RDWR | O_TRUNC, 0666);
+    if (hd == -1)
+        return (perror("heredoc"), -1);
+    ft_setup_heredoc_signals();
+    line = readline("> ");
+    while (line && !is_eof(line, eof) && g_signal != SIGINT)
     {
-        line = readline(HD_PROMPT);
-        if (!line || ft_strcmp(line, delim) == 0)
-            break ;
         if (expand)
-            line = ft_expand_line(line, ms);     /* ← utilitaire d’expansion   */
-        write(fd, line, ft_strlen(line));
-        write(fd, "\n", 1);
+            line = ft_expand_line(line, ms);
+        write(hd, line, ft_strlen(line));
+        write(hd, "\n", 1);
+        if (line && *line)
+            add_history(line);
         free(line);
+        line = readline("> ");
+    }
+    if (g_signal == SIGINT)
+    {
+        free(line);
+        close(hd);
+        ft_restore_prompt_signals();
+        g_signal = 0;
+        unlink(".heredoc.txt");
+        return (-1);
     }
     free(line);
-    close(fd);
-    return (tmp);
+    close(hd);
+    ft_restore_prompt_signals();
+    *fdread = open(".heredoc.txt", O_RDONLY);
+    return (0);
 }
 
-char    *ft_expand_line(char *raw, t_minishell *ms)
+/* Transforme chaque << en fd prêt à lire */
+int process_heredocs(t_command *cmds, t_minishell *ms)
+{
+    t_redirection   *r;
+    int             fd;
+    bool            quoted;
+
+    while (cmds)
+    {
+        r = cmds->redir;
+        while (r)
+        {
+            if (r->type != HEREDOC)
+            {
+                r = r->next;
+                continue;
+            }
+            quoted = (ft_strchr(r->file, '\'') || ft_strchr(r->file, '"'));
+            if (ft_exec_heredoc(r->file, &fd, ms, !quoted) == -1)
+            {
+                ms->last_status = 130;
+                return (1);
+            }
+            r->type = REDIR_IN;
+            r->fd = fd;
+            r = r->next;
+        }
+        cmds = cmds->next;
+    }
+    return (0);
+}
+
+char *ft_expand_line(char *raw, t_minishell *ms)
 {
     t_dynbuf    buf;
     size_t      i;
@@ -72,41 +104,13 @@ char    *ft_expand_line(char *raw, t_minishell *ms)
         {
             if (ft_expand_variable(&buf, raw, &i, ms) == -1)
                 return (ft_dynbuf_free(&buf), NULL);
-            continue ;
+            continue;
         }
         if (ft_dynbuf_add_char(&buf, raw[i]) == -1)
             return (ft_dynbuf_free(&buf), NULL);
         i++;
     }
-    raw = ft_dynbuf_str(&buf);     /* duplique le contenu terminé      */
-    ft_dynbuf_free(&buf);          /* libère le tampon interne         */
-    return (raw);                  /* peut être NULL si malloc échoue  */
-}
-
-/* -------- API : traiter tous les heredocs de la ligne -------------------- */
-int process_heredocs(t_command *cmds, t_minishell *ms)
-{
-    t_redirection   *r;
-    char            *file;
-    bool            quoted;
-
-    while (cmds)
-    {
-        r = cmds->redir;
-        while (r)
-        {
-            if (r->type == HEREDOC)
-            {
-                quoted = (ft_strchr(r->file, '\'') || ft_strchr(r->file, '\"'));
-                file = hd_fill_file(r->file, !quoted, ms);
-                if (!file)
-                    return (perror("heredoc"), 1);
-                r->type = REDIR_IN;
-                r->file = file;
-            }
-            r = r->next;
-        }
-        cmds = cmds->next;
-    }
-    return (0);
+    raw = ft_dynbuf_str(&buf);
+    ft_dynbuf_free(&buf);
+    return (raw);
 }

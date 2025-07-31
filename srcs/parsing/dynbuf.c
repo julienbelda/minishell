@@ -68,7 +68,7 @@ char	*ft_dynbuf_str(t_dynbuf *b)
 }
 
 /* libère data et remet la struct à zéro. */
-void ft_dynbuf_free(t_dynbuf *b)
+void	ft_dynbuf_free(t_dynbuf *b)
 {
 	free(b->data);
 	b->data = NULL;

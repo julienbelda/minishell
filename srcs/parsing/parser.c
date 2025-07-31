@@ -55,7 +55,7 @@ int	parse_word(t_command *cmd, t_token *tok)
 
 int	parse_pipe(t_command **cur, int *err)
 {
-	if (!(*cur)->name)          /* pipe sans commande avant */
+	if (!(*cur)->name)
 		return (*err = 1, -1);
 	(*cur)->next = ft_init_cmd();
 	if (!(*cur)->next)
@@ -68,12 +68,12 @@ int	parse_redir(t_command *cmd, t_token **tok, int *err)
 {
 	t_token_type	type;
 
-	type = (*tok)->type;        /* mémorise le type           */
-	*tok = (*tok)->next;        /* avance vers le fichier     */
+	type = (*tok)->type;
+	*tok = (*tok)->next;
 	if (!(*tok) || (*tok)->type != WORD)
-		return (*err = 1, -1);  /* pas de mot → erreur syntax */
+		return (*err = 1, -1);
 	if (redir_push(cmd, type, (*tok)->value) == -1)
-		return (*err = -1, -1); /* malloc erreur              */
+		return (*err = -1, -1);
 	return (0);
 }
 
@@ -98,7 +98,7 @@ t_command	*parse_tokens(t_token *tok, int *err)
 			return (NULL);
 		tok = tok->next;
 	}
-	if (!cur->name)                 /* ligne finissant par | ou redir sans mot */
+	if (!cur->name)
 		return (*err = 1, NULL);
 	return (head);
 }
@@ -129,5 +129,3 @@ int	redir_push(t_command *cmd, t_token_type type, char *file)
 	}
 	return (0);
 }
-
-

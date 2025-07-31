@@ -18,7 +18,7 @@ int	handle_assignments(t_command *cmd, t_minishell *ms)
 	i = 0;
 	while (cmd->argv[i] && is_assignment_str(cmd->argv[i]))
 	{
-		*eq = ft_strchr(cmd->argv[i], '=');
+		eq = ft_strchr(cmd->argv[i], '=');
 		*eq = '\0';
 		set_env(&ms->env, cmd->argv[i], eq + 1);
 		*eq = '=';

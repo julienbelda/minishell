@@ -106,9 +106,9 @@ static void	wait_all(t_minishell *ms)
 int	ft_execute(t_command *cmds, t_minishell *ms)
 {
 	if (process_heredocs(cmds, ms))
-		return (1);
+		return (ms->last_status);
 	if (exec_pipeline(cmds, ms))
-		return (1);
+		return (ms->last_status);
 	wait_all(ms);
 	return (ms->last_status);
 }
