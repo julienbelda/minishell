@@ -27,3 +27,14 @@ t_token	*ft_lex_error(t_dynbuf *b, t_token **lst, const char *msg)
 	printf("LEXER-ERR: %s\n", msg);
 	return (NULL);
 }
+
+int	ft_lex_operator(t_dynbuf *b, t_token **lst,
+			char *l, size_t *i)
+{
+	if (!ft_is_operator(l[*i]))
+		return (0);
+	if (ft_flush_word(b, lst) == -1
+		|| !ft_found_operator_token(lst, l, i))
+		return (-1);
+	return (1);
+}
