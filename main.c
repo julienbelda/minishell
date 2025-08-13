@@ -1,20 +1,31 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: minishell <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/04 17:10:00 by minishell         #+#    #+#             */
-/*   Updated: 2025/07/04 17:10:00 by minishell        ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-/* main.c ----------------------------------------------------------------- */
 #include "minishell.h"
 #include <stdio.h>
-#include <readline/readline.h>
-#include <readline/history.h>
+
+static void	free_redirs(t_redirection *r)
+{
+	t_redirection	*tmp;
+
+	while (r)
+	{
+		tmp = r->next;
+		free(r);
+		r = tmp;
+	}
+}
+
+static void	free_cmd_list(t_command *cmd)
+{
+	t_command	*tmp;
+
+	while (cmd)
+	{
+		tmp = cmd->next;
+		free(cmd->argv);
+		free_redirs(cmd->redir);
+		free(cmd);
+		cmd = tmp;
+	}
+}
 
 static void	process_line(char *line, t_minishell *ms)
 {
@@ -22,26 +33,22 @@ static void	process_line(char *line, t_minishell *ms)
 	t_command	*cmds;
 	int			err;
 
-	if (!*line)                     /* ligne vide */
+	if (!*line)
 		return ;
 	add_history(line);
-
 	toks = ft_lexer(line, ms);
 	if (!toks)
 		return ;
 	cmds = parse_tokens(toks, &err);
 	if (!cmds)
 	{
-		printf("parse error (%d)\n", err);
+		fprintf(stderr, "minishell: parse error\n");
 		ft_token_clear(&toks);
 		return ;
 	}
-	/* --- tant que l’exécuteur n’est pas prêt, on affiche --------------- */
-	for (t_command *c = cmds; c; c = c->next)
-		printf("[cmd] %s\n", c->name);
-	/* free (helper à écrire) */
+	ft_execute(cmds, ms);
 	ft_token_clear(&toks);
-	/* free_cmd_list(cmds) … */
+	free_cmd_list(cmds);
 }
 
 int	main(int ac, char **av, char **envp)
@@ -49,17 +56,17 @@ int	main(int ac, char **av, char **envp)
 	t_minishell	ms;
 	char		*line;
 
-	(void)ac; (void)av; (void)envp;
+	(void)ac;
+	(void)av;
 	ms.env = init_env(envp);
-    if (!ms.env)
-        return (perror("env"), 1);
+	if (!ms.env)
+		return (perror("minishell"), 1);
 	ms.last_status = 0;
-
 	ft_setup_prompt_signals();
 	while (1)
 	{
 		line = readline("minishell$ ");
-		if (!line)               /* Ctrl-D ou EOF */
+		if (!line)
 		{
 			printf("exit\n");
 			break ;
@@ -67,6 +74,7 @@ int	main(int ac, char **av, char **envp)
 		process_line(line, &ms);
 		free(line);
 	}
-	/* free env… */
-	return (0);
+	ft_free_env_list(ms.env);
+	rl_clear_history();
+	return (ms.last_status);
 }

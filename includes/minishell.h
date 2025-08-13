@@ -19,7 +19,7 @@
 # include <sys/wait.h>
 # include <sys/param.h>
 
-#define ERR_MALLOC "Erreur malloc\n"
+# define ERR_MALLOC "Erreur malloc\n"
 
 typedef enum e_type
 {
@@ -33,15 +33,15 @@ typedef enum e_type
 
 typedef enum e_lstate
 {
-    NORMAL,
-    IN_SQUOTE,
-    IN_DQUOTE
-}   t_lstate;
+	NORMAL,
+	IN_SQUOTE,
+	IN_DQUOTE
+}	t_lstate;
 
 typedef struct s_token
 {
-	t_token_type	type; //WORD, PIPE..
-	char			*value; // Mot, nom d'un fichier, délimiteur..
+	t_token_type	type;
+	char			*value;
 	struct s_token	*next;
 	struct s_token	*prev;
 
@@ -49,19 +49,24 @@ typedef struct s_token
 
 typedef struct s_redirection
 {
-	t_token_type			type; //REDIR_IN, REDIR_OUT, REDIR_APPEND, HEREDOC..
-	char					*file; //File ou délim si heredoc
+	t_token_type			type;
+	char					*file;
+	int						fd;
 	struct s_redirection	*next;
 }	t_redirection;
 
 typedef struct s_command
 {
-	char            *name;
-	char            **argv;
-	size_t          argv_cap;   /* capacité actuelle du tableau */
-	size_t          argc;       /* nb d’arguments remplis       */
-	t_redirection   *redir;
-	struct s_command *next;
+	char				*name;
+	char				**argv;
+	int					argc;
+	char				**argv_full;
+	int					argc_full;
+	int					argv_cap;
+	int					argv_full_cap;
+	t_redirection		*redir;
+	struct s_command	*next;
+	int					assign_count;
 }	t_command;
 
 typedef struct s_env
@@ -79,7 +84,7 @@ typedef struct s_minishell
 	int		last_status; //Pour $?
 }	t_minishell;
 
-typedef struct s_dynbuf // Structure utilisé que dans lexer pour construire pas a pas un mot de longeur inconnue avant de le placer dans token
+typedef struct s_dynbuf
 {
 	char	*data; // Zone malloc-ée
 	size_t	len;	// Nb de caractère utilisé
@@ -88,23 +93,20 @@ typedef struct s_dynbuf // Structure utilisé que dans lexer pour construire pas
 
 typedef struct s_lexctx
 {
-    t_dynbuf    buf;
-    t_token     *lst;
-    t_lstate    st;
-    t_minishell *ms;
-}   t_lexctx;
+	t_dynbuf	buf;
+	t_token		*lst;
+	t_lstate	st;
+	t_minishell	*ms;
+}	t_lexctx;
+
+typedef struct s_fd
+{
+	int	in;
+	int	out;
+}	t_fd;
 
 t_token		*ft_lexer(char *line, t_minishell *mini);
-t_command	*ft_parser(t_token *tokens);
 int			ft_execute(t_command *commands, t_minishell *mini);
-
-int			ft_echo(char **args, t_minishell *mini);
-int			ft_cd(char **args, t_minishell *mini);
-int			ft_pwd(char **args, t_minishell *mini);
-int			ft_export(char **args, t_minishell *mini);
-int			ft_unset(char **args, t_minishell *mini);
-int			ft_env(char **args, t_minishell *mini);
-int			ft_exit(char **args, t_minishell *mini);
 
 /* DYNBUF.C */
 
@@ -118,7 +120,8 @@ void		ft_dynbuf_free(t_dynbuf *b);
 
 char		*ft_env_get(t_env *env, char *key, size_t len);
 int			append_str_dyn(t_dynbuf *buf, char *src);
-int			ft_expand_variable(t_dynbuf *buf, char *line, size_t *idx, t_minishell *mini);
+int			ft_expand_variable(t_dynbuf *buf, \
+	char *line, size_t *idx, t_minishell *mini);
 
 /* LEXER_HELPER.C */
 
@@ -129,9 +132,10 @@ t_token		*ft_lex_error(t_dynbuf *b, t_token **lst, const char *msg);
 /* LEXER.C */
 int			ft_lex_operator(t_dynbuf *b, t_token **lst, char *l, size_t *i);
 int			ft_lex_quote_toggle(t_lstate *s, char *l, size_t *i);
-int			ft_lex_variable(t_dynbuf *buf, char *line, size_t *i, t_minishell *ms);
+int			ft_lex_variable(t_dynbuf *buf, \
+	char *line, size_t *i, t_minishell *ms);
 int			ft_lex_space(t_dynbuf *b, t_token **lst, char *l, size_t *i);
-int 		ft_lex_loop(t_lexctx *c, char *line);
+int			ft_lex_loop(t_lexctx *c, char *line);
 t_token		*ft_lexer(char *line, t_minishell *ms);
 
 /* PARSER.C */
@@ -143,6 +147,13 @@ int			parse_pipe(t_command **cur, int *err);
 int			parse_redir(t_command *cmd, t_token **tok, int *err);
 t_command	*parse_tokens(t_token *tok, int *err);
 int			redir_push(t_command *cmd, t_token_type type, char *file);
+
+/* PARSER2.C */
+
+int			handle_pipe_token(t_command **cur, t_token **tok, int *err);
+int			handle_redir_token(t_command *cur, t_token **tok, int *err);
+int			process_token(t_command **cur, t_token **tok, int *err);
+int			handle_word_token(t_command *cur, t_token **tok);
 
 /* TOKEN.C */
 
@@ -163,63 +174,107 @@ int			ft_env_add_back(t_env **head, t_env *new);
 int			ft_split_key_value(char *src, char **key, char **val);
 t_env		*init_env(char **envp);
 void		ft_free_env_list(t_env *head);
+char		**env_to_array(t_env *env);
+void		free_env_array(char **arr);
+char		**env_to_array_ext(t_env *env, bool all_vars);
+int			ft_add_token(t_token **list, t_token_type type, char *value);
+bool		print_error(char *str);
+int			print_sorted_env(t_env *env);
+void		sort_env_array(t_env **array, int size);
 
-int	lex_operator(t_dynbuf *b, t_token **lst, char *l, size_t *i);
-int	lex_quote_toggle(t_lstate *s, char *l, size_t *i);
-int	lex_variable(t_dynbuf *b, char *l, size_t *i, t_minishell *ms);
-int	lex_space(t_dynbuf *b, t_token **lst, char *l, size_t *i);
-int  lex_loop(t_lexctx *c, char *line);
-t_token *ft_lexer(char *line, t_minishell *ms);
-int	ft_add_token(t_token **list, t_token_type type, char *value);
+int			ft_strcmp(const char *s1, const char *s2);
+void		set_exit_status(t_minishell *mini, int code, const char *msg);
+void		free_env(t_env *env);
+void		remove_node_target(t_env **head, t_env *target);
+char		*get_env(t_env *env, const char *key);
+t_env		*create_env_with_kv(const char *key, const char *value);
+int			set_env(t_env **env, char *key, const char *value);
 
-bool	print_error(char *str);
-int print_sorted_env(t_env *env);
-void sort_env_array(t_env **array, int size);
-void ft_env_add_back2(t_env **env, t_env *new);
-int	ft_strcmp(const char *s1, const char *s2);
-void set_exit_status(t_minishell *mini, int code, const char *msg);
-void free_env(t_env *env);
-void remove_node_target(t_env **head, t_env *target);
-char *get_env(t_env *env, const char *key);
-t_env *create_env_with_kv(const char *key, const char *value);
-int set_env(t_env **env, char *key,const char *value);
-
+void		ft_split_free(char **tab);
 
 /* FT_CD.C */
 
-int update_var_oldpwd_pwd(t_env **env);
-int handle_home_cd(t_env **env);
-int handle_oldpwd(t_env **env);
-int builtin_cd(char **args, t_env **env);
+int			update_var_oldpwd_pwd(t_env **env);
+int			handle_home_cd(t_env **env);
+int			handle_oldpwd(t_env **env);
+int			ft_cd(char **argv, t_minishell *ms);
 
 /*FT_ECHO.C */
 
-int parse_option(char *str);
-void builtin_echo(char **argv);
+int			parse_option(char *s);
+int			builtin_echo(char **argv, t_minishell *ms);
 
 /* FT_ENV.C */
 
-int builtin_env(t_minishell *mini);
+int			ft_env(char **argv, t_minishell *ms);
+void		free_envp(char **envp);
 
 /* FT_EXIT.C */
 
-int ft_is_numeric(char *str);
-void builtin_exit(char **args, t_minishell *mini);
+int			ft_is_numeric(char *str);
+int			builtin_exit(char **args, t_minishell *mini);
 
 /* FT_EXPORT.C */
 
-bool valid_identifier(const char *str);
-t_env *find_env(t_env *env, const char *key);
-int export_assign(t_minishell *mini, char *key, char *value);
-int export_single(t_minishell *mini, const char *arg);
-int ft_export(char **args, t_minishell *mini);
+bool		valid_identifier(const char *str);
+t_env		*find_env(t_env *env, const char *key);
+int			export_assign(t_minishell *mini, char *key, char *value);
+int			export_single(t_minishell *mini, const char *arg);
+int			ft_export(char **args, t_minishell *mini);
 
 /* FT_PWD.C */
 
-int builtin_pwd(t_minishell *mini);
+int			ft_pwd(char **argv, t_minishell *ms);
 
 /* FT_UNSET.C */
 
-int builtin_unset(char **args, t_minishell *mini);
+int			builtin_unset(char **args, t_minishell *mini);
+/* FT_HELPER.C */
 
+bool		is_builtin(t_command *cmd);
+int			run_builtin(t_command *cmd, t_minishell *ms);
+int			run_builtin_env(t_command *cmd, \
+	t_minishell *ms, t_env *env_override);
+
+/* PATH.C */
+
+char		*join_path(const char *dir, const char *file);
+char		*get_cmd_path(char *name, t_env *env);
+
+/* REDIRECTION. C */
+
+int			redir_in(const char *file);
+int			redir_in_fd(t_redirection *r);
+int			redir_out(const char *file);
+int			redir_append(const char *file);
+int			process_single_heredoc(t_redirection *r, t_minishell *ms);
+int			apply_redirections(t_redirection *redir);
+
+/*EXEC.C*/
+
+pid_t		launch_child(t_command *cmd, \
+	int in_fd, int out_fd, t_minishell *ms);
+int			handle_assignments(t_command *cmd, t_minishell *ms);
+
+int			process_heredocs(t_command *cmds, t_minishell *ms);
+char		*ft_expand_line(char *raw, t_minishell *ms);
+int			ft_exec_heredoc(char *eof, \
+	int *fdread, t_minishell *ms, bool expand);
+
+void		ft_restore_prompt_signals(void);
+void		ft_setup_heredoc_signals(void);
+bool		is_assignment_str(const char *s);
+t_env		*dup_env_list(t_env *src);
+void		add_assignments_to_env(t_env **env, char **argv);
+void		set_std_io(int in_fd, int out_fd);
+int			get_out_fd(t_command *cmd, int pipefd[2]);
+int			run_builtin_parent(t_command *cmd, t_minishell *ms, int *in_fd);
+void		update_in_fd(t_command *cmd, int *in_fd, int pipefd[2]);
+int			exec_pipeline_cmd(t_command *cmd, \
+	t_minishell *ms, int *in_fd, int pipefd[2]);
+
+/* EXEC_ASSIGN.C */
+
+void		add_assignments_prefix_to_env(t_env **env, \
+	char **argv, int assign_count);
 #endif

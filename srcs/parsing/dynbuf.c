@@ -1,7 +1,5 @@
 #include "minishell.h"
 
-/* Met le tampon à zéro (pointeur NULL, len = 0, cap = 0). */
-
 void	ft_dynbuf_init(t_dynbuf *b)
 {
 	b->data = NULL;
@@ -68,7 +66,7 @@ char	*ft_dynbuf_str(t_dynbuf *b)
 }
 
 /* libère data et remet la struct à zéro. */
-void ft_dynbuf_free(t_dynbuf *b)
+void	ft_dynbuf_free(t_dynbuf *b)
 {
 	free(b->data);
 	b->data = NULL;

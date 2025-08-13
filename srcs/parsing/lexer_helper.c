@@ -15,15 +15,15 @@ int	ft_flush_word(t_dynbuf *b, t_token **list)
 	if (!ft_add_token(list, WORD, str))
 		return (-1);
 	b->len = 0;
-	if (b->data)                    /* ← ajout indispensable */
-		b->data[0] = '\0';          /*   pour la prochaine construction */
+	if (b->data)
+		b->data[0] = '\0';
 	return (0);
 }
 
-t_token *ft_lex_error(t_dynbuf *b, t_token **lst, const char *msg)
+t_token	*ft_lex_error(t_dynbuf *b, t_token **lst, const char *msg)
 {
-    ft_dynbuf_free(b);
-    ft_token_clear(lst);          /* ta fonction de free liste */
-    printf("LEXER-ERR: %s\n", msg);
-    return (NULL);
+	ft_dynbuf_free(b);
+	ft_token_clear(lst);
+	printf("LEXER-ERR: %s\n", msg);
+	return (NULL);
 }

@@ -6,7 +6,7 @@
 #    By: julienbelda <julienbelda@student.42.fr>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/14 12:09:05 by jubelda           #+#    #+#              #
-#    Updated: 2025/07/08 14:10:47 by julienbelda      ###   ########.fr        #
+#    Updated: 2025/08/12 09:28:07 by julienbelda      ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,16 +17,53 @@ SRCS_DIRECTORY   := ./srcs
 LIBFT_FOLDER     := $(SRCS_DIRECTORY)/libft
 RL_PREFIX        := $(shell brew --prefix readline)
 
+# Main file
 MAIN_FILE        := main.c
-PARSING_FILES    := $(wildcard $(SRCS_DIRECTORY)/parsing/*.c)
-EXECUTING_FILES  := $(wildcard $(SRCS_DIRECTORY)/execution/*.c)
-BUILTIN_FILES    := $(wildcard $(SRCS_DIRECTORY)/execution/builtin/*.c)
-EXECUTE_FILES    := $(wildcard $(SRCS_DIRECTORY)/execution/exec/*.c)
-LINKED_LIST_FILES:= $(wildcard $(SRCS_DIRECTORY)/linked_list/*.c)
-UTILS_FILES := $(wildcard $(SRCS_DIRECTORY)/utils/*.c)
 
-SRCS := $(MAIN_FILE) $(PARSING_FILES) $(EXECUTING_FILES) \
-        $(BUILTIN_FILES) $(EXECUTE_FILES) $(LINKED_LIST_FILES) $(UTILS_FILES)
+# Parsing files
+PARSING_FILES    := srcs/parsing/dynbuf.c \
+                    srcs/parsing/env.c \
+                    srcs/parsing/env2.c \
+                    srcs/parsing/expand.c \
+                    srcs/parsing/lexer.c \
+                    srcs/parsing/lexer_helper.c \
+                    srcs/parsing/parser.c \
+                    srcs/parsing/parser2.c \
+                    srcs/parsing/parser3.c \
+                    srcs/parsing/signal.c \
+                    srcs/parsing/signal2.c \
+                    srcs/parsing/token.c
+
+# Builtin files
+BUILTIN_FILES    := srcs/execution/builtin/ft_cd.c \
+                    srcs/execution/builtin/ft_echo.c \
+                    srcs/execution/builtin/ft_env.c \
+                    srcs/execution/builtin/ft_exit.c \
+                    srcs/execution/builtin/ft_export.c \
+                    srcs/execution/builtin/ft_pwd.c \
+                    srcs/execution/builtin/ft_unset.c
+
+# Execution files
+EXECUTE_FILES    := srcs/execution/exec/exec_assign.c \
+                    srcs/execution/exec/exec_launch.c \
+                    srcs/execution/exec/exec_launch2.c \
+                    srcs/execution/exec/exec_loop.c \
+                    srcs/execution/exec/exec_loop2.c \
+                    srcs/execution/exec/helper.c \
+                    srcs/execution/exec/heredoc.c \
+                    srcs/execution/exec/heredoc2.c \
+                    srcs/execution/exec/path.c \
+                    srcs/execution/exec/redirection.c
+
+# Utils files
+UTILS_FILES      := srcs/utils/env.c \
+                    srcs/utils/env2.c \
+                    srcs/utils/env_nodes.c \
+                    srcs/utils/error.c \
+                    srcs/utils/free.c
+
+# All source files
+SRCS := $(MAIN_FILE) $(PARSING_FILES) $(BUILTIN_FILES) $(EXECUTE_FILES) $(UTILS_FILES)
 OBJS := $(SRCS:.c=.o)
 
 CC       := gcc -g3 -fsanitize=address

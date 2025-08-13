@@ -1,46 +1,30 @@
 #include "minishell.h"
 
-// echo -> je dois afficher les arguments separé par un espace
-
-int parse_option(char *str)
+int	parse_option(char *s)
 {
-	// checker si le deuxieme arg est l'option -n
-	// DANS la fonction echo, si parse option est vrai -> je dois pas afficher de saut de ligne
-	// il peut y avoir plusieurs n, exemple : -nnnnn fonctionne
+	int	i;
 
-	int i;
-	
-	i = 0;
-	if (str[i] == '-')
-	{
+	if (!s || s[0] != '-')
+		return (0);
+	i = 1;
+	while (s[i] == 'n')
 		i++;
-		while (str[i] && str[i] == 'n')
-		{
-			i++;
-			if (str[i] == '\0')
-				return 1;
-		}
-		if (str[i] != 'n')
-			return 0;
-	}
-	else
-		return 0;
-	return 0;
+	return (s[i] == '\0');
 }
 
-void builtin_echo(char **argv)
+int	builtin_echo(char **argv, t_minishell *ms)
 {
-    int i;
-	int newline;
+	int		i;
+	int		newline;
 
 	i = 1;
+	(void) ms;
 	newline = 1;
-	if (parse_option(argv[1]))
+	if (argv[i] && parse_option(argv[i]))
 	{
-		i++;
+		newline = 0;
 		while (argv[i] && parse_option(argv[i]))
 			i++;
-		newline = 0;
 	}
 	while (argv[i])
 	{
@@ -49,27 +33,7 @@ void builtin_echo(char **argv)
 			printf(" ");
 		i++;
 	}
-	if (!newline)
-		return;
-	printf("\n");
+	if (newline)
+		printf("\n");
+	return (0);
 }
-
-
-/* int main(int argc, char **argv)
-{
-	if (argc < 2)
-	{
-		printf("nombres args incorrect");
-		return 0;
-	}
-	else
-	{
-		if (ft_strcmp(argv[1], "echo") == 0)
-				builtin_echo(argv + 1);
-		else
-		{
-			printf("commande inconnu");
-			return 0;
-		}
-	}
-} */
